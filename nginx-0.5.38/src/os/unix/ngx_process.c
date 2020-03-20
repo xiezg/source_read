@@ -172,7 +172,7 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
     ngx_process_slot = s;
 
 
-    pid = fork();
+    pid = fork();       //nginx启动工作进程也行采用fork形式
 
     switch (pid) {
 
@@ -183,12 +183,13 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
         return NGX_INVALID_PID;
 
     case 0:
+        //子进行执行
         ngx_pid = ngx_getpid();
         proc(cycle, data);
         break;
 
     default:
-        break;
+        break;  //父进程
     }
 
     ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "start %s %P", name, pid);

@@ -34,6 +34,7 @@ struct ngx_shm_zone_s {
 };
 
 
+//这是一个关键的数据结构，代表什么?
 struct ngx_cycle_s {
     void                  ****conf_ctx;
     ngx_pool_t               *pool;
@@ -67,7 +68,7 @@ struct ngx_cycle_s {
 
 typedef struct {
      ngx_flag_t               daemon;
-     ngx_flag_t               master;
+     ngx_flag_t               master;       //NGX_PROCESS_SINGLE=0 NGX_PROCESS_MASTER=1 NGX_PROCESS_WORKER=2
 
      ngx_msec_t               timer_resolution;
 

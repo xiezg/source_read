@@ -122,8 +122,9 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
 
     ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 
-    ngx_start_worker_processes(cycle, ccf->worker_processes,
-                               NGX_PROCESS_RESPAWN);
+    //启动工作进程
+    ngx_start_worker_processes(cycle, ccf->worker_processes, NGX_PROCESS_RESPAWN);
+
     ngx_start_garbage_collector(cycle, NGX_PROCESS_RESPAWN);
 
     ngx_new_binary = 0;
@@ -316,6 +317,7 @@ ngx_single_process_cycle(ngx_cycle_t *cycle)
 }
 
 
+//n 是工作进程的数量
 static void
 ngx_start_worker_processes(ngx_cycle_t *cycle, ngx_int_t n, ngx_int_t type)
 {
@@ -330,8 +332,7 @@ ngx_start_worker_processes(ngx_cycle_t *cycle, ngx_int_t n, ngx_int_t type)
 
         cpu_affinity = ngx_get_cpu_affinity(i);
 
-        ngx_spawn_process(cycle, ngx_worker_process_cycle, NULL,
-                          "worker process", type);
+        ngx_spawn_process(cycle, ngx_worker_process_cycle, NULL, "worker process", type);   //启动子进程
 
         ch.pid = ngx_processes[ngx_process_slot].pid;
         ch.slot = ngx_process_slot;
