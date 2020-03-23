@@ -15,7 +15,7 @@
 typedef struct ngx_listening_s  ngx_listening_t;
 
 struct ngx_listening_s {
-    ngx_socket_t        fd;
+    ngx_socket_t        fd;     //typedef int  ngx_socket_t;
 
     struct sockaddr    *sockaddr;
     socklen_t           socklen;    /* size of sockaddr */
@@ -31,7 +31,7 @@ struct ngx_listening_s {
     int                 sndbuf;
 
     /* handler of accepted connection */
-    ngx_connection_handler_pt   handler;
+    ngx_connection_handler_pt   handler;        //这是一个回调函数 typedef void (*ngx_connection_handler_pt)(ngx_connection_t *c);
 
     void               *servers;  /* array of ngx_http_in_addr_t, for example */
 
@@ -48,7 +48,7 @@ struct ngx_listening_s {
 
     unsigned            open:1;
     unsigned            remain:1;
-    unsigned            ignore:1;
+    unsigned            ignore:1;       //该监听对象被忽略
 
     unsigned            bound:1;       /* already bound */
     unsigned            inherited:1;   /* inherited from previous process */

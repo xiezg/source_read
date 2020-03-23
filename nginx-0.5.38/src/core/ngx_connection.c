@@ -12,6 +12,7 @@
 ngx_os_io_t  ngx_io;
 
 
+//准备一个ngx_listening_t对象并设置他的监听地址和接口
 ngx_listening_t *
 ngx_listening_inet_stream_socket(ngx_conf_t *cf, in_addr_t addr, in_port_t port)
 {
@@ -49,7 +50,7 @@ ngx_listening_inet_stream_socket(ngx_conf_t *cf, in_addr_t addr, in_port_t port)
 
     ls->fd = (ngx_socket_t) -1;
     ls->family = AF_INET;
-    ls->type = SOCK_STREAM;
+    ls->type = SOCK_STREAM;     //流式套接字
     ls->sockaddr = (struct sockaddr *) sin;
     ls->socklen = sizeof(struct sockaddr_in);
     ls->addr = offsetof(struct sockaddr_in, sin_addr);
@@ -262,6 +263,17 @@ ngx_open_listening_sockets(ngx_cycle_t *cycle)
                 return NGX_ERROR;
             }
 
+            //开启socket REUSEADDR模式
+            //SO_REUSEADDR可以用在以下四种情况下。
+            //1、当有一个有相同本地地址和端口的socket1处于TIME_WAIT状态时，而你启动的程序的socket2要占用该地址和端口，你的程序就要用到该选项。
+            //2、SO_REUSEADDR允许同一port上启动同一服务器的多个实例(多个进程)。但每个实例绑定的IP地址是不能相同的。在有多块网卡或用IP Alias技术的机器可以测试这种情况。
+            //3、SO_REUSEADDR允许单个进程绑定相同的端口到多个socket上，但每个socket绑定的ip地址不同。这和2很相似，区别请看UNPv1。
+            //4、SO_REUSEADDR允许完全相同的地址和端口的重复绑定。但这只用于UDP的多播，不用于TCP。
+            //TCP/SOCK_STREAM 服务程序时，SO_REUSEADDR到底什么意思？
+            //A:这个套接字选项通知内核，如果端口忙，但TCP状态位于 TIME_WAIT ，可以重用端口。如果端口忙，
+            //而TCP状态位于其他状态，重用端口时依旧得到一个错误信息，指明"地址已经使用中"。如果你的服务程序停止后想立即重启，
+            //而新套接字依旧使用同一端口，此时SO_REUSEADDR 选项非常有用。必须意识到，此时任何非期望数据到达，
+            //都可能导致服务程序反应混乱，不过这只是一种可能，事实上很不可能
             if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
                            (const void *) &reuseaddr, sizeof(int))
                 == -1)
