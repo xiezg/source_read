@@ -21,14 +21,14 @@ struct ngx_listening_s {
     socklen_t           socklen;    /* size of sockaddr */
     size_t              addr;       /* offset to address in sockaddr */
     size_t              addr_text_max_len;
-    ngx_str_t           addr_text;
+    ngx_str_t           addr_text;      //IP:PORT 192.168.1.1:8989
 
     int                 family;
     int                 type;
 
     int                 backlog;
-    int                 rcvbuf;
-    int                 sndbuf;
+    int                 rcvbuf;         //接收缓冲区的长度
+    int                 sndbuf;         //发送缓冲区的长度
 
     /* handler of accepted connection */
     ngx_connection_handler_pt   handler;        //这是一个回调函数 typedef void (*ngx_connection_handler_pt)(ngx_connection_t *c);
@@ -53,7 +53,7 @@ struct ngx_listening_s {
     unsigned            bound:1;       /* already bound */
     unsigned            inherited:1;   /* inherited from previous process */
     unsigned            nonblocking_accept:1;
-    unsigned            listen:1;
+    unsigned            listen:1;       //端口调用listen成功后，设置为1，表示该socket已进入监听状态
     unsigned            nonblocking:1;
     unsigned            shared:1;    /* shared between threads or processes */
     unsigned            addr_ntop:1;

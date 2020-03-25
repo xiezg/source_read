@@ -12,7 +12,9 @@
 ngx_os_io_t  ngx_io;
 
 
-//准备一个ngx_listening_t对象并设置他的监听地址和接口
+/*准备一个ngx_listening_t对象并设置他的监听地址和接口
+ * */
+
 ngx_listening_t *
 ngx_listening_inet_stream_socket(ngx_conf_t *cf, in_addr_t addr, in_port_t port)
 {
@@ -20,7 +22,7 @@ ngx_listening_inet_stream_socket(ngx_conf_t *cf, in_addr_t addr, in_port_t port)
     ngx_listening_t     *ls;
     struct sockaddr_in  *sin;
 
-    ls = ngx_array_push(&cf->cycle->listening);
+    ls = ngx_array_push(&cf->cycle->listening); //新建一个 ngx_listening_t 对象
     if (ls == NULL) {
         return NULL;
     }
@@ -37,16 +39,14 @@ ngx_listening_inet_stream_socket(ngx_conf_t *cf, in_addr_t addr, in_port_t port)
     sin->sin_port = htons(port);
 
 
-    ls->addr_text.data = ngx_palloc(cf->pool,
-                                    INET_ADDRSTRLEN - 1 + sizeof(":65535") - 1);
+    ls->addr_text.data = ngx_palloc(cf->pool,INET_ADDRSTRLEN - 1 + sizeof(":65535") - 1);    //INET_ADDRSTRLEN 16 255.255.255.255 3*4+3+1=16
     if (ls->addr_text.data == NULL) {
         return NULL;
     }
 
     len = ngx_inet_ntop(AF_INET, &addr, ls->addr_text.data, INET_ADDRSTRLEN);
 
-    ls->addr_text.len = ngx_sprintf(ls->addr_text.data + len, ":%d", port)
-                        - ls->addr_text.data;
+    ls->addr_text.len = ngx_sprintf(ls->addr_text.data + len, ":%d", port)- ls->addr_text.data;
 
     ls->fd = (ngx_socket_t) -1;
     ls->family = AF_INET;
@@ -293,7 +293,7 @@ ngx_open_listening_sockets(ngx_cycle_t *cycle)
 
             /* TODO: close on exit */
 
-            if (!(ngx_event_flags & NGX_USE_AIO_EVENT)) {
+            if (!(ngx_event_flags & NGX_USE_AIO_EVENT)) {       //没有设置AIO模式下，则设置socket为非阻塞模式。AIO模式下，socket直接为阻塞模式
                 if (ngx_nonblocking(s) == -1) {
                     ngx_log_error(NGX_LOG_EMERG, log, ngx_socket_errno,
                                   ngx_nonblocking_n " %V failed",
@@ -312,6 +312,7 @@ ngx_open_listening_sockets(ngx_cycle_t *cycle)
             ngx_log_debug2(NGX_LOG_DEBUG_CORE, cycle->log, 0,
                            "bind() %V #%d ", &ls[i].addr_text, s);
 
+            //绑定端口
             if (bind(s, ls[i].sockaddr, ls[i].socklen) == -1) {
                 err = ngx_socket_errno;
 
@@ -504,10 +505,7 @@ ngx_configure_listening_socket(ngx_cycle_t *cycle)
                 timeout = 0;
             }
 
-            if (setsockopt(ls[i].fd, IPPROTO_TCP, TCP_DEFER_ACCEPT,
-                           &timeout, sizeof(int))
-                == -1)
-            {
+            if (setsockopt(ls[i].fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &timeout, sizeof(int))== -1){   //define TCP_DEFER_ACCEPT /* Wake up listener only when data arrive */
                 ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
                               "setsockopt(TCP_DEFER_ACCEPT, %d) for %V failed, "
                               "ignored",

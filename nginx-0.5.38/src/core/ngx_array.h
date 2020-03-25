@@ -13,9 +13,9 @@
 
 
 struct ngx_array_s {
-    void        *elts;
-    ngx_uint_t   nelts;
-    size_t       size;
+    void        *elts;  //数据有效元素的起始指针
+    ngx_uint_t   nelts; //有效元素个数
+    size_t       size;  //元素的长度
     ngx_uint_t   nalloc;
     ngx_pool_t  *pool;
 };

@@ -46,7 +46,7 @@ struct ngx_cycle_s {
     ngx_connection_t         *free_connections;
     ngx_uint_t                free_connection_n;
 
-    ngx_array_t               listening;
+    ngx_array_t               listening;    //系统中的监听对象数组，每一项代表一个监听的socket以及相关信息，这也对象nginx可以开启多个监听端口
     ngx_array_t               pathes;
     ngx_list_t                open_files;
     ngx_list_t                shared_memory;
