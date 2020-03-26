@@ -87,6 +87,8 @@ ngx_set_inherited_sockets(ngx_cycle_t *cycle)
         }
 
         ls[i].socklen = sizeof(struct sockaddr_in);
+
+        //获取sock的当前绑定地址
         if (getsockname(ls[i].fd, ls[i].sockaddr, &ls[i].socklen) == -1) {
             ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_socket_errno,
                           "getsockname() of the inherited "
@@ -210,9 +212,8 @@ ngx_set_inherited_sockets(ngx_cycle_t *cycle)
     return NGX_OK;
 }
 
-
-ngx_int_t
-ngx_open_listening_sockets(ngx_cycle_t *cycle)
+//为所有的监听对象分配socket句柄，并配置各种选项（开启地址重用以及非阻塞模式，然后bind、listen）
+ngx_int_t ngx_open_listening_sockets(ngx_cycle_t *cycle)
 {
     int               reuseaddr;
     ngx_uint_t        i, tries, failed;
@@ -274,10 +275,7 @@ ngx_open_listening_sockets(ngx_cycle_t *cycle)
             //而TCP状态位于其他状态，重用端口时依旧得到一个错误信息，指明"地址已经使用中"。如果你的服务程序停止后想立即重启，
             //而新套接字依旧使用同一端口，此时SO_REUSEADDR 选项非常有用。必须意识到，此时任何非期望数据到达，
             //都可能导致服务程序反应混乱，不过这只是一种可能，事实上很不可能
-            if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
-                           (const void *) &reuseaddr, sizeof(int))
-                == -1)
-            {
+            if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR,(const void *) &reuseaddr, sizeof(int)) == -1){
                 ngx_log_error(NGX_LOG_EMERG, log, ngx_socket_errno,
                               "setsockopt(SO_REUSEADDR) %V failed",
                               &ls[i].addr_text);
@@ -338,6 +336,7 @@ ngx_open_listening_sockets(ngx_cycle_t *cycle)
                 continue;
             }
 
+            //开启监听后，当有connect来时，监听socket的EPOLL_IN状态打开，可读，这时调用accept就不会失败。
             if (listen(s, ls[i].backlog) == -1) {
                 ngx_log_error(NGX_LOG_EMERG, log, ngx_socket_errno,
                               "listen() to %V, backlog %d failed",
@@ -378,8 +377,7 @@ ngx_open_listening_sockets(ngx_cycle_t *cycle)
 }
 
 
-void
-ngx_configure_listening_socket(ngx_cycle_t *cycle)
+void ngx_configure_listening_socket(ngx_cycle_t *cycle)
 {
     ngx_uint_t                 i;
     ngx_listening_t           *ls;

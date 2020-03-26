@@ -11,6 +11,29 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 
+//typedef unsigned short int sa_family_t;
+//#define	__SOCKADDR_COMMON(sa_prefix)  sa_family_t sa_prefix##family  
+//struct sockaddr{
+//  __SOCKADDR_COMMON (sa_);	/* Common data: address family and length.  */
+//  char sa_data[14];		    /* Address data.  */
+//};
+
+
+///* Internet address. */
+//struct in_addr {
+//	__be32	s_addr;
+//};
+
+///* Structure describing an Internet (IP) socket address. */
+//#define __SOCK_SIZE__	16		/* sizeof(struct sockaddr)	*/
+//struct sockaddr_in {
+//  sa_family_t		sin_family;	/* Address family		*/
+//  __be16		    sin_port;	/* Port number			*/
+//  struct in_addr	sin_addr;	/* Internet address		*/
+//
+//  /* Pad to size of `struct sockaddr'. */
+//  unsigned char		__pad[__SOCK_SIZE__ - sizeof(short int) - sizeof(unsigned short int) - sizeof(struct in_addr)];
+//};
 
 typedef struct ngx_listening_s  ngx_listening_t;
 
